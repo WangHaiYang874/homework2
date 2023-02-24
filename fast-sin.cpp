@@ -21,7 +21,9 @@ static constexpr double c5  =  1/(((double)2)*3*4*5);
 static constexpr double c7  = -1/(((double)2)*3*4*5*6*7);
 static constexpr double c9  =  1/(((double)2)*3*4*5*6*7*8*9);
 static constexpr double c11 = -1/(((double)2)*3*4*5*6*7*8*9*10*11);
-// sin(x) = x + c3*x^3 + c5*x^5 + c7*x^7 + x9*x^9 + c11*x^11
+static constexpr double c13 =  1/(((double)2)*3*4*5*6*7*8*9*10*11*13);
+static constexpr double c15 = -1/(((double)2)*3*4*5*6*7*8*9*10*11*13*15);
+// sin(x) = x + c3*x^3 + c5*x^5 + c7*x^7 + x9*x^9 + c11*x^11 + c13*x^13 + c15*x^15
 
 void sin4_reference(double* sinx, const double* x) {
   for (long i = 0; i < 4; i++) sinx[i] = sin(x[i]);
@@ -36,6 +38,8 @@ void sin4_taylor(double* sinx, const double* x) {
     double x7  = x5 * x2;
     double x9  = x7 * x2;
     double x11 = x9 * x2;
+    double x13 = x11 * x2;
+    double x15 = x13 * x2;
 
     double s = x1;
     s += x3  * c3;
@@ -43,6 +47,8 @@ void sin4_taylor(double* sinx, const double* x) {
     s += x7  * c7;
     s += x9  * c9;
     s += x11 * c11;
+    s += x13 * c13;
+    s += x15 * c15;
     sinx[i] = s;
   }
 }
@@ -79,13 +85,25 @@ void sin4_intrin(double* sinx, const double* x) {
 void sin4_vector(double* sinx, const double* x) {
   // The Vec class is defined in the file intrin-wrapper.h
   typedef Vec<double,4> Vec4;
-  Vec4 x1, x2, x3;
+  Vec4 x1, x2, x3, x5, x7, x9, x11, x13, x15;
   x1  = Vec4::LoadAligned(x);
   x2  = x1 * x1;
   x3  = x1 * x2;
+  x5  = x3 * x2;
+  x7  = x5 * x2;
+  x9  = x7 * x2;
+  x11 = x9 * x2;
+  x13 = x11 * x2;
+  x15 = x13 * x2;
 
   Vec4 s = x1;
   s += x3  * c3 ;
+  s += x5  * c5 ;
+  s += x7  * c7 ;
+  s += x9  * c9 ;
+  s += x11  * c11;
+  s += x13  * c13;
+  s += x15  * c15;
   s.StoreAligned(sinx);
 }
 
@@ -149,4 +167,3 @@ int main() {
   aligned_free(sinx_intrin);
   aligned_free(sinx_vector);
 }
-
